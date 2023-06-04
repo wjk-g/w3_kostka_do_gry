@@ -33,33 +33,84 @@
 # Typy kostek występujące w grach: D3, D4, D6, D8, D10, D12, D20, D100.
 
 import random
+import sys
 
 roll1 = "2D10+10"
 roll2 = "20D6+1"
 roll3 = "aaaaaa"
 roll4 = "aaDaa+aa"
+roll5 = "100D1-1"
+roll6 = "D1+1"
+
 
 def roll(params):
 
     try:
         D_index = params.index("D")
-        plus_index = params.index("+")
-
         rolls = params[:D_index]
-        dice = params[D_index+1:plus_index]
-        mod = params[plus_index+1:]
-
-        sum = int(mod)
-        for _ in range(int(rolls)):
-            sum += random.randint(1,int(dice))
-        return sum
-    
     except ValueError:
-        print("Incorrect input.")
-        return None
+        print("Specify the dice type.")
+        sys.exit(1)
 
-print(roll(roll1))
-print(roll(roll2))
-print(roll(roll3))
-print(roll(roll4))
+    try:
+        if rolls == "":
+            rolls = 1
+        else:
+            rolls == int(rolls)
+    except ValueError:
+        print("""
+The number of rolls must be a whole number.
+Alternatively, you can skip it altogether.
+        """)
+        sys.exit(1)
 
+    modifier_exists = False
+    try:
+        operator_index = params.index("+")
+        modifier_exists = True
+    except ValueError:
+        pass
+
+    try:
+        operator_index = params.index("-")
+        modifier_exists = True
+    except ValueError:
+        pass
+
+    try:
+        if modifier_exists:
+            dice = int(params[D_index+1:operator_index])
+        else:
+            dice = int(params[D_index+1:])
+    except Exception:
+        print("The number of sides of the dice must be a whole number.")
+        sys.exit(1)
+
+    try:
+        modifier = params[operator_index:]
+        modifier = int(modifier)
+    except UnboundLocalError:
+        pass
+    except ValueError:
+        print("""
+The modifier must be a whole number.
+Alternatively, you can skip it altogether.
+""")
+        sys.exit(1)
+
+    if modifier_exists:
+        sum = modifier
+    else:
+        sum = 0
+        
+    for _ in range(1, int(rolls)+1):
+        sum += random.randint(1,int(dice))
+    
+    return sum
+
+#print(roll(roll1))
+#print(roll(roll2))
+#print(roll(roll3))
+#print(roll(roll4))
+print(roll(roll5))
+print(roll(roll6))
